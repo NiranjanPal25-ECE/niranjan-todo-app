@@ -87,7 +87,7 @@ exports.googleCallback = async (req, res) => {
       process.env.FRONTEND_URL || "http://localhost:5173";
 
     res.redirect(
-      `${frontendUrl}/login-success?token=${encodeURIComponent(token)}`
+      `${frontendUrl}/?token=${encodeURIComponent(token)}`
     );
   } catch (error) {
     console.error("Google login error:", error);
