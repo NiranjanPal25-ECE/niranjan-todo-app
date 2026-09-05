@@ -1,32 +1,57 @@
-//core modules
-require('dotenv').config();
-const path = require('path');
+require("dotenv").config();
 
-// externel modules
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
 
-const todoItemsRouter = require('./routes/todoItemsRouter');
-const errorController = require('./controllers/error');
+const todoItemsRouter = require("./routes/todoItemsRouter");
+const authRouter = require("./routes/authRouter");
+const errorController = require("./controllers/error");
 
 const app = express();
 
-app.use(express.urlencoded({extended: true}));
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "http://localhost:5173";
+
+app.use(
+  cors({
+    origin: FRONTEND_URL,
+  })
+);
+
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors());
+
+app.get("/", (req, res) => {
+  res.json({
+    message: "Todo API is running",
+  });
+});
+
+app.use("/auth", authRouter);
+
 app.use("/api/todo", todoItemsRouter);
+
 app.use(errorController.pageNotFound);
 
-//MONGO DB CONNECTION
 const DB_PATH = process.env.MONGO_URI;
 
-const port = 5002;
-mongoose.connect(DB_PATH).then(() =>{
-    console.log("connect to mongoose")
-    app.listen(port, () =>{
-    console.log(`server running at http://localhost:${port}`);
-});
-}).catch(err =>{
-    console.log("error while connecting to mongoose",err);
-})
+const port = process.env.PORT || 5002;
+
+mongoose
+  .connect(DB_PATH)
+  .then(() => {
+    console.log("Connected to MongoDB");
+
+    app.listen(port, () => {
+      console.log(
+        `Server running at http://localhost:${port}`
+      );
+    });
+  })
+  .catch((err) => {
+    console.log(
+      "Error while connecting to MongoDB:",
+      err
+    );
+  });
